@@ -1,7 +1,7 @@
 MOD_NAME = "pet_bee"
 PET_MENU_ID = nil
-PET_BEE_HUNGER_TICK = 0.1
-PET_BEE_GIFT_TICK = 0.075
+PET_BEE_HUNGER_TICK = 1
+PET_BEE_GIFT_TICK = 0.75
 
 function register()
   return {
@@ -155,8 +155,8 @@ function init()
     shop_buy = 0,
     shop_sell = 0,
     layout = {
-      { 49, 88, "Input", { "pet_bee_pet_food" } },
-      { 75, 88, "Output" }
+      { 50, 88, "Input", { "pet_bee_pet_food" } },
+      { 76, 88, "Output" }
     },
     buttons = { "Move", "Close" },
     info = {},
@@ -276,7 +276,7 @@ end
 function draw_menu_error(menu_id)
   if api_gp(menu_id, "bee_hunger") < 100 then
     api_sp(menu_id, "error", "Cannot feed pet when hunger is under 100")
-    local input_slot_pos = local_pos_to_global(menu_id, { x = 49, y = 88 })
+    local input_slot_pos = local_pos_to_global(menu_id, { x = 50, y = 88 })
     api_draw_rectangle(input_slot_pos["x"], input_slot_pos["y"], input_slot_pos["x"] + 15, input_slot_pos["y"] + 15, "FONT_RED", false, 0.5)
   else
     api_sp(menu_id, "error", "")
@@ -323,7 +323,7 @@ end
 
 function feed_bee(menu_id)
   local mouse = api_get_mouse_inst()
-  api_slot_decr(mouse, 1)
+  api_slot_decr(mouse["id"], 1)
 
   api_sp(menu_id, "bee_hunger", 0)
   local fed_times = increment_counter(menu_id, "bee_fed_times")
