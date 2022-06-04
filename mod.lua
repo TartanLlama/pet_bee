@@ -110,6 +110,10 @@ end
 
 function step()
   update_map_bee_position(PET_MENU_ID)
+
+  if not bee_close_enough_for_menu(PET_MENU_ID) then
+    api_toggle_menu(PET_MENU_ID, false)
+  end
 end
 
 function init()
@@ -130,7 +134,7 @@ function init()
   local pet_food_recipe = {
     { item = "flower5", amount = 1 }
   }
-  
+
   api_define_recipe("crafting", MOD_NAME .. "_pet_food", pet_food_recipe, 1)
 
   api_define_item({
@@ -144,7 +148,7 @@ function init()
     singular = true
   }, "sprites/pet_bee_item.png")
 
-  -- This menu object will be hidden offscreen and used 
+  -- This menu object will be hidden offscreen and used
   -- only for its menu
   api_define_menu_object({
     id = "pet_bee_menu_obj",
@@ -309,6 +313,15 @@ function pet_menu_define(menu_id)
   api_dp(menu_id, "bee_fed_times", 0)
 
   api_slot_set_modded(api_get_slot(menu_id, 1)["id"], true)
+
+  local fields = { "bee_hunger", "bee_level", "bee_gift_count", "bee_fed_times", "map_bee_pos", "map_bee_pos_count" }
+  api_sp(menu_id, "_fields", fields)
+end
+
+function bee_close_enough_for_menu(menu_id)
+  local player = api_get_player_position()
+  local bee_pos = api_gp(PET_MENU_ID, "map_bee_pos")
+  return math.abs(player["x"] - bee_pos["x"]) < 20 and math.abs(player["y"] - bee_pos["y"]) < 20
 end
 
 function toggle_pet_menu()
@@ -316,8 +329,13 @@ function toggle_pet_menu()
   if open then
     api_toggle_menu(PET_MENU_ID, false)
   else
-    api_create_counter("pet_display_counter", 0.5, 0, 44, 1)
-    api_toggle_menu(PET_MENU_ID, true)
+    -- Only open the menu if the bee is close enough
+    if (bee_close_enough_for_menu(PET_MENU_ID)) then
+      api_create_counter("pet_display_counter", 0.5, 0, 44, 1)
+      api_toggle_menu(PET_MENU_ID, true)
+    else
+      api_set_notification("notice", MOD_NAME .. "_pet_bee", "Pet bee too far", "Chill for a bit")
+    end
   end
 end
 
